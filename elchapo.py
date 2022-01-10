@@ -1,15 +1,15 @@
-## SUPERDUPER UNDERSÖKNING 
+## SUPERDUPER UNDERSÖKNING
 
 # Arduino input: Serial.print("9.82 1.04 1.07\n");
 
 import serial
-from time import sleep #Kan vara nödvändigt 
+from time import sleep #Kan vara nödvändigt
 import time, datetime, csv
 import keyboard #Det här är dumt, men det enklaste jag hittade. *nix system måste köra som Root, vilket inte är önskvärt.
 
-usb_serialport = '/dev/cu.usbmodem146101'
-time_add = 2 #Testa, måste tweakas under riktiga förhållanden för att inte evaluate_data funktionen ska gå sönder.
-sleep_time = 0.05 #Detta borde vara samma värde som arduino delay.
+usb_serialport = 'COM4'
+time_add = 5 #Testa, måste tweakas under riktiga förhållanden för att inte evaluate_data funktionen ska gå sönder.
+sleep_time = 0 #Detta borde vara samma värde som arduino delay.
 timeout = 0
 
 ser = serial.Serial(usb_serialport) #Öppna serialporten
@@ -24,22 +24,22 @@ def read_data(line): #Läser datan som skickas från arduino via serial. Datan k
     return li_float
 
 def evaluate_data(line): #Kontrollerar brytvärde för datainsamling.
-    
+
     #timeout = time.time()
 
-    timeout = 0
-    
-    if line[0] > 1.5:
-        timeout = time.time() + time_add
+    record_data = False
 
-    if line[1] > 1.5:
-        timeout = time.time() + time_add
+    if line[0] > 2:
+        record_data = True
 
-    if line[2] > 1.5:
-        timeout = time.time() + time_add
+    if line[1] > 2:
+        record_data = True
+
+    if line[2] > 11:
+        record_data = True
     #print(timeout-time.time()) #Kontrollera intervallet vid användning
 
-    return timeout
+    return record_data
 
 def write_output_data(line):
 
@@ -55,14 +55,18 @@ def write_output_data(line):
 while True:
     line = ser.readline().decode().strip()
 
-    if time.time() < evaluate_data(read_data(line)):
+    if evaluate_data(read_data(line)) == True:
+        timeout = time.time()+time_add
+
+    #if time.time() < evaluate_data(read_data(line)):
+    if time.time() < timeout:
         write_output_data(read_data(line))
 
     else:
         print(read_data(line))
         print("ingen data")
     sleep(sleep_time)
-    
+
     if keyboard.is_pressed('q'):
         print("End loop")
         break
