@@ -1,7 +1,3 @@
-## SUPERDUPER UNDERSÖKNING
-
-# Arduino input: Serial.print("9.82 1.04 1.07\n");
-
 import serial
 from time import sleep #Kan vara nödvändigt
 import time, datetime, csv
@@ -17,15 +13,14 @@ ser = serial.Serial(usb_serialport) #Öppna serialporten
 def read_data(line): #Läser datan som skickas från arduino via serial. Datan konverteras till en lista och returneras.
     li = list(line.split(" "))
     li_float = []
-
-    for element in li:
-        li_float.append(float(element))
-
+    try:
+        for element in li:
+            li_float.append(float(element))
+    except:
+        print("corrupted data")
     return li_float
 
 def evaluate_data(line): #Kontrollerar brytvärde för datainsamling.
-
-    #timeout = time.time()
 
     record_data = False
 
@@ -37,8 +32,7 @@ def evaluate_data(line): #Kontrollerar brytvärde för datainsamling.
 
     if line[2] > 11:
         record_data = True
-    #print(timeout-time.time()) #Kontrollera intervallet vid användning
-
+        
     return record_data
 
 def write_output_data(line):
@@ -53,18 +47,20 @@ def write_output_data(line):
         data_writer.writerow(line)
 
 while True:
-    line = ser.readline().decode().strip()
-
+    try:
+        line = ser.readline().decode().strip()
+    except:
+        print("error, cant read lines")
+    
     if evaluate_data(read_data(line)) == True:
         timeout = time.time()+time_add
 
-    #if time.time() < evaluate_data(read_data(line)):
     if time.time() < timeout:
         write_output_data(read_data(line))
-
+        print("DATA RECORDED: ", read_data(line))
+        
     else:
-        print(read_data(line))
-        print("ingen data")
+        print("DATA OUTPUT: ", read_data(line))
     sleep(sleep_time)
 
     if keyboard.is_pressed('q'):
