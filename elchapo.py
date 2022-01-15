@@ -3,7 +3,7 @@ from time import sleep
 import time, datetime, csv
 import keyboard     #Det här är dumt, men det enklaste jag hittade. *nix system måste köra som Root, vilket inte är önskvärt.
 
-usb_serialport = 'COM4'
+usb_serialport = 'COM3'
 
 time_add = 5        #Testa, måste tweakas under riktiga förhållanden.
 sleep_time = 0      #Detta borde vara samma värde som arduino delay.
@@ -14,11 +14,11 @@ x_trigger_min = -0.2
 x_trigger_max = 0.2
 y_trigger_min = -0.2
 y_trigger_max = 0.2
-z_trigger_min = 9.0
-z_trigger_max = 11.0
+z_trigger_min = 10.0
+z_trigger_max = 10.7
 
 
-ser = serial.Serial(usb_serialport) #Öppna serialporten
+ser = serial.Serial(usb_serialport,19200) #Öppna serialporten
 
 def read_data(line): #Läser datan som skickas från arduino via serial. Datan konverteras till en lista och returneras.
     li = list(line.split(" "))
@@ -49,12 +49,15 @@ def write_output_data(line):
 
     timestamp = datetime.datetime.now().strftime("%H:%M:%S.%f")
     datestamp = datetime.date.today()
-    line.insert(0, timestamp)
+    li_string = []
+    for element in line:
+        li_string.append(str(element).replace('.',','))
+    li_string.insert(0, timestamp)
     file_name = str(datestamp) + ".csv"
 
-    with open(file_name, 'a') as csvfile:
+    with open(file_name, 'a', newline="") as csvfile:
         data_writer = csv.writer(csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        data_writer.writerow(line)
+        data_writer.writerow(li_string)
 
 while True:
     try:
