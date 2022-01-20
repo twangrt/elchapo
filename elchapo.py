@@ -16,6 +16,10 @@ y_trigger_min = -0.2
 y_trigger_max = 0.2
 z_trigger_min = 10.0
 z_trigger_max = 10.7
+x_running_list = []
+y_running_list = []
+z_running_list = []
+running_list_N = 10
 
 
 ser = serial.Serial(usb_serialport,19200) #Öppna serialporten
@@ -30,8 +34,21 @@ def read_data(line): #Läser datan som skickas från arduino via serial. Datan k
         print("corrupted data")
     return li_float
 
-def evaluate_data(line): #Kontrollerar brytvärde för datainsamling.
+def return_mean_from_list:
+    print("Not done yet") #
 
+def evaluate_data(line): #Kontrollerar brytvärde för datainsamling.
+    
+    x_running_list.append(line[0])
+    y_running_list.append(line[1])
+    z_running_list.append(line[2])
+    
+    if len(x_running_list) > running_list_N:
+        del x_running_list[0]
+        del y_running_list[0]
+        del z_running_list[0]
+        
+    
     record_data = False
 
     if not x_trigger_min < line[0] < x_trigger_max:
