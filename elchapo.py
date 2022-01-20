@@ -34,9 +34,6 @@ def read_data(line): #Läser datan som skickas från arduino via serial. Datan k
         print("corrupted data")
     return li_float
 
-def return_mean_from_list:
-    print("Not done yet") #
-
 def evaluate_data(line): #Kontrollerar brytvärde för datainsamling.
     
     x_running_list.append(line[0])
@@ -47,17 +44,20 @@ def evaluate_data(line): #Kontrollerar brytvärde för datainsamling.
         del x_running_list[0]
         del y_running_list[0]
         del z_running_list[0]
-        
+    
+    x_mean_value = sum(x_running_list) / len(x_running_list)
+    y_mean_value = sum(y_running_list) / len(y_running_list)
+    z_mean_value = sum(z_running_list) / len(z_running_list)
     
     record_data = False
 
-    if not x_trigger_min < line[0] < x_trigger_max:
+    if not x_trigger_min < x_mean_value < x_trigger_max:
         record_data = True
 
-    if not y_trigger_min < line[1] < y_trigger_max:
+    if not y_trigger_min < y_mean_value < y_trigger_max:
         record_data = True
 
-    if not z_trigger_min < line[2] < z_trigger_max:
+    if not z_trigger_min < z_mean_value < z_trigger_max:
         record_data = True
         
     return record_data
